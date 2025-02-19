@@ -1,4 +1,4 @@
-### Install Minio:
+### Install Minio
 
 ```bash
 helm repo add minio https://operator.min.io/
@@ -24,9 +24,9 @@ helm upgrade --install --namespace minio --create-namespace minio-tenant minio/t
 
 #### Accessing MinIO
 
-- Access Key: minio
-- Secret Key: minio123
-- Endpoint: http://minio.minio.svc.cluster.local:80
+- Access Key: `minio`
+- Secret Key: `minio123`
+- Endpoint: `http://minio.minio.svc.cluster.local:80`
 
 
 ### Install Kube Prometheus Stack
@@ -78,15 +78,15 @@ This ensures that Thanos Query can discover and connect to Thanos Sidecar instan
 kubectl -n thanos create secret generic thanos-objstore-config --from-file=s3.yaml=thanos-storage-config.yaml
 ```
 
-#### Deploy Thanos Manifests:
+#### Deploy Thanos Manifests
 
 ```bash
-kubectl apply -f manifests -n thanos
+kubectl apply -f .kube-thanos/manifests -n thanos
 ```
 
-### Verify the Setup:
+### Verify the Setup
 
-#### Query metrics via Thanos Querier:
+#### Query metrics via Thanos Querier
 
 ```bash
  kubectl port-forward svc/thanos-query -n thanos 9090:9090

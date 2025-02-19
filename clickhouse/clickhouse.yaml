@@ -1,0 +1,87 @@
+apiVersion: "clickhouse.altinity.com/v1"
+kind: "ClickHouseInstallation"
+metadata:
+  name: clickhouse
+  namespace: monitoring
+spec:
+  configuration:
+    clusters:
+      - name: "cluster"
+        layout:
+          shardsCount: 1
+          replicasCount: 1
+        templates:
+          podTemplate: clickhouse-stable
+          dataVolumeClaimTemplate: clickhouse-data-volume
+          serviceTemplate: svc-template
+    zookeeper:
+      nodes:
+        - host: zookeeper-headless
+          port: 2181
+    users:
+      admin/password_sha256_hex: 00810cf8b94d6fcb9c5de484d3bec4187620b3e2876e59aab90d852fe0f18fb6
+      admin/profile: default
+      admin/quota: default
+      admin/networks/ip:
+        - 0.0.0.0/0
+        - ::/0
+    files:
+      config.d/log_rotation.xml: |-
+        <clickhouse>
+            <logger>
+                <level>information</level>
+                <log>/var/log/clickhouse-server/clickhouse-server.log</log>
+                <errorlog>/var/log/clickhouse-server/clickhouse-server.err.log</errorlog>
+                <size>100M</size>
+                <count>5</count>
+                <console>1</console>
+            </logger>
+        </clickhouse>
+      config.d/storage.xml: |-
+        <clickhouse>
+          <storage_configuration>
+            <disks>
+              <s3>
+                <type>s3</type>
+                <endpoint>http://minio.minio.svc.cluster.local:80/test/s3_disk/{replica}</endpoint>
+                <access_key_id>minio</access_key_id>
+                <secret_access_key>minio123</secret_access_key>
+                <region>us-east-1</region>
+                <metadata_path>/var/lib/clickhouse/disks/s3_disk/</metadata_path>
+              </s3>
+            </disks>
+            <policies>
+              <tiered>
+                <volumes>
+                  <hot>
+                    <disk>default</disk>
+                  </hot>
+                  <cold>
+                    <disk>s3</disk>
+                  </cold>
+                </volumes>
+                <move_factor>0.2</move_factor>
+              </tiered>
+            </policies>
+          </storage_configuration>
+        </clickhouse>
+
+  templates:
+    podTemplates:
+      - name: clickhouse-stable
+        spec:
+          containers:
+            - name: clickhouse
+              image: clickhouse/clickhouse-server:24.1.2-alpine
+              resources:
+                requests:
+                  memory: "1024Mi"
+                  cpu: "500m"
+    volumeClaimTemplates:
+      - name: clickhouse-data-volume
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 5Gi
