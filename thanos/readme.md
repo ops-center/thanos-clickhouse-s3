@@ -46,7 +46,7 @@ helm install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
 ### Create Thanos Storage Secret
 
 ```bash
-kubectl -n monitoring create secret generic thanos-objstore-config --from-file=s3.yaml=thanos-storage-config.yaml
+kubectl -n monitoring create secret generic thanos-objstore-config --from-file=thanos-storage-config.yaml=s3.yaml
 ```
 
 ### Install Thanos Components
@@ -75,7 +75,7 @@ This ensures that Thanos Query can discover and connect to Thanos Sidecar instan
 #### Create Thanos Storage Secret
 
 ```bash
-kubectl -n thanos create secret generic thanos-objstore-config --from-file=s3.yaml=thanos-storage-config.yaml
+kubectl -n thanos create secret generic thanos-objstore-config --from-file=thanos-storage-config.yaml=s3.yaml
 ```
 
 #### Deploy Thanos Manifests
