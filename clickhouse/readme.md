@@ -30,21 +30,12 @@ helm upgrade --install --namespace minio --create-namespace minio-tenant minio/t
 
 ### Setup ClickHouse
 
-#### Install Zookeeper
+#### Create custom config
 
 ```bash
-helm install zookeeper -n monitoring oci://registry-1.docker.io/bitnamicharts/zookeeper \
-    --set zookeeper.enabled=false \
-    --set persistence.size=100Mi \
-    --set replicaCount=1  
+kubectl create secret generic -n monitoring my-config-xml --from-file=./custom-config.xml
+
 ```
-
-#### Install ClickHouse Operator
-
-```bash
- helm install clickhouse-operator clickhouse-operator/altinity-clickhouse-operator -n monitoring
-```
-
 #### Deploy ClickHouse DB
 
 ```bash
@@ -54,7 +45,7 @@ kubectl apply -f ./clickhouse.yaml
 ### Verify the Setup
 
 ```bash
-kubectl exec -it -n monitoring chi-clickhouse-cluster-0-0-0 -- bash
+kubectl exec -it -n monitoring ch-0 -- bash
 chi-clickhouse-cluster-0-0-0:/# clickhouse-client
 ```
 ```sql
